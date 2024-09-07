@@ -1,2 +1,23 @@
 .DS_Store
+
+.devenv
+
+.vscode/extensions
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+
+result
+
+*.qcow2
+
+.env
+
 .build

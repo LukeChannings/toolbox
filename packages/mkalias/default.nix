@@ -1,4 +1,10 @@
-{ stdenv, swift, swiftpm, swiftpm2nix, swiftPackages }:
+{
+  stdenv,
+  swift,
+  swiftpm,
+  swiftpm2nix,
+  swiftPackages,
+}:
 let
   # Pass the generated files to the helper.
   generated = swiftpm2nix.helpers ./nix;
@@ -12,7 +18,10 @@ stdenv.mkDerivation rec {
   # Including SwiftPM as a nativeBuildInput provides a buildPhase for you.
   # This by default performs a release build using SwiftPM, essentially:
   #   swift build -c release
-  nativeBuildInputs = [ swift swiftpm ];
+  nativeBuildInputs = [
+    swift
+    swiftpm
+  ];
 
   buildInputs = [ swiftPackages.Foundation ];
 
@@ -24,7 +33,7 @@ stdenv.mkDerivation rec {
     # This is a special function that invokes swiftpm to find the location
     # of the binaries it produced.
     binPath="$(swiftpmBinPath)"
-  
+
     # Now perform any installation steps.
     mkdir -p $out/bin
     cp $binPath/mkalias $out/bin/

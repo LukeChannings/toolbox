@@ -1,6 +1,36 @@
-{ config, lib, ... }:
+{
+  self,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
-  extensions = config.vscode-workspace-extensions;
+  fixupExtension =
+    drv:
+    drv.overrideAttrs {
+      postInstall = ''
+        extensionDir=$(realpath $out/share/vscode/extensions/*)
+        main="$(${pkgs.jq}/bin/jq -r ".main" "$extensionDir/package.json")"
+
+        # The main entrypoint exists, nothing to do.
+        if [ -e "$extensionDir/$main" ]; then
+          exit 0
+        fi
+
+        # The main entrypoint does not exist, but it looks like it's an extensionless path that we can link.
+        if [ ! -e "$extensionDir/$main" ] && [ -e "$extensionDir/$main.js" ]; then
+          echo "Linking $extensionDir/$main to $extensionDir/$main.js"
+          ln -s "$extensionDir/$main.js" "$extensionDir/$main"
+          exit 0
+        fi
+
+        # Error!
+        echo "$extensionDir/$main and $extensionDir/$main.js don't exist. Can't fix this extension."
+        exit 1
+      '';
+    };
+  extensions = builtins.map fixupExtension config.vscode-workspace-extensions;
 in
 {
   options = {
@@ -11,32 +41,31 @@ in
   };
 
   config = lib.mkIf (extensions != null) {
-    enterShell = ''
-      if [ ! -d .vscode/extensions ]; then
-        echo "Installing VSCode workspace extensions..."
+    enterShell =
+      let
+        env = pkgs.buildEnv {
+          name = "${self}-vscode-workspace-extensions";
+          paths = extensions;
+          pathsToLink = "/share/vscode";
+        };
+      in
+      ''
+        # ensure .vscode exists
+        mkdir -p .vscode
 
-        mkdir -p .vscode/extensions
+        # error if .vscode/extensions exists and isn't a symlink
+        if [ -e .vscode/extensions -a ! -L .vscode/extensions ]; then
+          echo ".vscode/extensions already exists. Please delete it before continuing."
+          exit 1
+        fi
 
-        ${
-          builtins.concatStringsSep "\n" (
-            map (extension: "cp -R ${extension}/share/vscode/extensions/* .vscode/extensions/") extensions
-          )
-        }
+        if [ -e .vscode/extensions.json ]; then
+          echo "Warning: .vscode/extensions.json cannot co-exist with workspace extensions"
+        fi
 
-        chmod +rw -R .vscode/extensions
-
-        for extension in $(ls .vscode/extensions); do
-          extensionPath=".vscode/extensions/''${extension}"
-          main="$(jq -r ".main" ''${extensionPath}/package.json)"
-
-          if [ ! -e "''${extensionPath}/''${main}" ]; then
-            echo "Fixing entry point for ''${extension}"
-            tmp="$(mktemp)"
-            jq ".main = \"''${main}.js\"" "''${extensionPath}/package.json" > $tmp
-            cat $tmp > "''${extensionPath}/package.json"
-          fi
-        done
-      fi
-    '';
+        # remove the existing symlink and re-link
+        rm -f .vscode/extensions
+        ln -fs "${env}/share/vscode/extensions" "$(pwd)/.vscode/extensions"
+      '';
   };
 }

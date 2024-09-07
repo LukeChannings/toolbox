@@ -17,5 +17,9 @@
       packages = {
         mkalias = (pkgs.callPackage ./packages/mkalias {});
       };
-    });
+    }) // {
+      devenvModules = {
+        vscode-workspace-extensions = (import ./modules/devenv/vscode-workspace-extensions {});
+      };
+    };
 }

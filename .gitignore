@@ -2,7 +2,7 @@
 
 .devenv
 
-.vscode/extensions
+.vscode
 
 # Devenv
 .devenv*

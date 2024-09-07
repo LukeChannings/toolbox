@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    devenv-root = {
+      url = "file+file:///dev/null";
+      flake = false;
+    };
     devenv.url = "github:cachix/devenv";
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
@@ -41,7 +45,7 @@
         };
 
       flake.devenvModules = {
-        vscode-workspace-extensions = ./modules/devenv/vscode-workspace-extensions;
+        vscode-workspace = ./modules/devenv/vscode-workspace;
       };
     };
 }

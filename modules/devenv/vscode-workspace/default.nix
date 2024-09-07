@@ -30,20 +30,32 @@ let
         exit 1
       '';
     };
-  extensions = builtins.map fixupExtension config.vscode-workspace-extensions;
+  cfg = config.vscode-workspace;
+  extensions = builtins.map fixupExtension cfg.extensions;
+  jsonFormat = pkgs.formats.json { };
 in
 {
   options = {
-    vscode-workspace-extensions = lib.mkOption {
-      type = lib.types.nullOr (lib.types.listOf lib.types.package);
-      default = null;
+    vscode-workspace = {
+      extensions = lib.mkOption {
+        type = lib.types.nullOr (lib.types.listOf lib.types.package);
+        default = null;
+      };
+      settings = lib.mkOption {
+        type = jsonFormat.type;
+        default = { };
+        description = ''
+          Configuration written to Visual Studio Code's
+          {file}`settings.json`.
+        '';
+      };
     };
   };
 
   config = lib.mkIf (extensions != null) {
     enterShell =
       let
-        env = pkgs.buildEnv {
+        extensionsEnv = pkgs.buildEnv {
           name = "${self}-vscode-workspace-extensions";
           paths = extensions;
           pathsToLink = "/share/vscode";
@@ -64,8 +76,16 @@ in
         fi
 
         # remove the existing symlink and re-link
-        rm -f .vscode/extensions
-        ln -fs "${env}/share/vscode/extensions" "$(pwd)/.vscode/extensions"
-      '';
+        rm "$(pwd)/.vscode/extensions"
+        ln -fs "${extensionsEnv}/share/vscode/extensions" "$(pwd)/.vscode/extensions"
+      '' + (if cfg.settings != {} then ''
+        # error if .vscode/settings.json exists already
+        if [ -e .vscode/settings.json ] && [ ! -L .vscode/settings.json ]; then
+          echo ".vscode/settings.json already exists. Please delete it before continuing."
+          exit 1
+        fi
+
+        ln -fs ${jsonFormat.generate "settings.json" cfg.settings} "$(pwd)/.vscode/settings.json"
+      '' else "");
   };
 }

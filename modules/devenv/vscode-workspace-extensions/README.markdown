@@ -13,14 +13,10 @@ Specifies workspace extensions to be installed in the current workspace.
       devenv.shells.default = {
         imports = [ inputs.toolbox.devenvModules.vscode-workspace-extensions ];
 
-        vscode-workspace-extensions =
-          let
-            extension = pkgs.vscode-extensions;
-          in
-          [
-            extension.jnoortheen.nix-ide
-            extension.thenuprojectcontributors.vscode-nushell-lang
-            extension.bmalehorn.vscode-fish
+        vscode-workspace-extensions = with pkgs.vscode-extensions; [
+            jnoortheen.nix-ide
+            thenuprojectcontributors.vscode-nushell-lang
+            bmalehorn.vscode-fish
           ];
       };
     };

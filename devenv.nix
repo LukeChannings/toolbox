@@ -24,14 +24,10 @@
           nixVersions.latest
         ];
 
-        vscode-workspace-extensions =
-          let
-            ext = pkgs.vscode-extensions;
-          in
-          [
-            ext.jnoortheen.nix-ide
-            ext.thenuprojectcontributors.vscode-nushell-lang
-          ];
+        vscode-workspace-extensions = with pkgs.vscode-extensions; [
+          jnoortheen.nix-ide
+          thenuprojectcontributors.vscode-nushell-lang
+        ];
       };
     };
 }

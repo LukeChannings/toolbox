@@ -9,7 +9,7 @@ let
   # Pass the generated files to the helper.
   generated = swiftpm2nix.helpers ./nix;
 in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "mkalias";
   version = "1.0.0";
 

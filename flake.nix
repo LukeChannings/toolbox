@@ -10,10 +10,16 @@
     };
     devenv.url = "github:cachix/devenv";
     treefmt-nix.url = "github:numtide/treefmt-nix";
+    vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
   };
 
   outputs =
-    inputs@{ flake-parts, nixpkgs, ... }:
+    inputs@{
+      self,
+      flake-parts,
+      nixpkgs,
+      ...
+    }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.devenv.flakeModule
@@ -32,20 +38,18 @@
       perSystem =
         { pkgs, ... }:
         {
-          treefmt = {
-            projectRoot = ./.;
-            projectRootFile = "flake.nix";
-            programs.nixfmt.enable = true;
-            programs.stylua.enable = true;
-          };
-
-          packages = {
+          packages = rec {
             mkalias = (pkgs.callPackage ./packages/mkalias { });
+            link-apps = (pkgs.callPackage ./packages/link-apps { inherit mkalias; });
           };
         };
 
       flake.devenvModules = {
         vscode-workspace = ./modules/devenv/vscode-workspace;
+      };
+
+      flake.darwinModules = {
+        link-apps = import ./modules/darwin/link-apps { toolbox = self; };
       };
     };
 }

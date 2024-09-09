@@ -11,6 +11,16 @@
       ...
     }:
     {
+      treefmt = {
+        projectRoot = ./.;
+        projectRootFile = "flake.nix";
+        programs.nixfmt.enable = true;
+        programs.biome = {
+          enable = true;
+          settings.formatter.indentStyle = "space";
+        };
+      };
+
       devenv.shells.default = {
         devenv.root =
           let
@@ -29,19 +39,32 @@
           nixfmt-rfc-style
           nil
           nixVersions.latest
+          deno
         ];
 
         vscode-workspace = {
-          extensions = with pkgs.vscode-extensions; [
+          extensions = with inputs.vscode-extensions.extensions.${system}.vscode-marketplace; [
             jnoortheen.nix-ide
-            thenuprojectcontributors.vscode-nushell-lang
+            denoland.vscode-deno
+            ibecker.treefmt-vscode
           ];
           settings = {
             nix = {
               enableLanguageServer = true;
               serverPath = lib.getExe pkgs.nil;
-              serverSettings.nil.formatting.command = [(lib.getExe pkgs.nixfmt-rfc-style)];
             };
+
+            deno = {
+              enable = true;
+              path = lib.getExe pkgs.deno;
+            };
+
+            treefmt = {
+              command = lib.getExe config.treefmt.package;
+              config = config.treefmt.build.configFile;
+            };
+
+            editor.defaultFormatter = "ibecker.treefmt-vscode";
           };
         };
       };

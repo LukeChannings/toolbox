@@ -11,7 +11,6 @@ struct Path: ExpressibleByArgument {
 
 @main
 struct mkalias: ParsableCommand {
-    
     @Argument var source: Path
     @Argument var destination: Path
     

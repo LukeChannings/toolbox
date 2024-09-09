@@ -78,14 +78,20 @@ in
         # remove the existing symlink and re-link
         rm "$(pwd)/.vscode/extensions"
         ln -fs "${extensionsEnv}/share/vscode/extensions" "$(pwd)/.vscode/extensions"
-      '' + (if cfg.settings != {} then ''
-        # error if .vscode/settings.json exists already
-        if [ -e .vscode/settings.json ] && [ ! -L .vscode/settings.json ]; then
-          echo ".vscode/settings.json already exists. Please delete it before continuing."
-          exit 1
-        fi
+      ''
+      + (
+        if cfg.settings != { } then
+          ''
+            # error if .vscode/settings.json exists already
+            if [ -e .vscode/settings.json ] && [ ! -L .vscode/settings.json ]; then
+              echo ".vscode/settings.json already exists. Please delete it before continuing."
+              exit 1
+            fi
 
-        ln -fs ${jsonFormat.generate "settings.json" cfg.settings} "$(pwd)/.vscode/settings.json"
-      '' else "");
+            ln -fs ${jsonFormat.generate "settings.json" cfg.settings} "$(pwd)/.vscode/settings.json"
+          ''
+        else
+          ""
+      );
   };
 }

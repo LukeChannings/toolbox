@@ -55,7 +55,7 @@ in
       let
         systemApps = filterPackagesWithMacApps config.environment.systemPackages;
       in
-      ''
+      lib.mkIf ((builtins.length systemApps) > 0) ''
         ${linkApps} --destination '/Applications/Nix Apps' \
         ${lib.strings.concatStringsSep " " (
           map (drv: "${getInstallMethodPrefix drv}:${drv.outPath}") systemApps

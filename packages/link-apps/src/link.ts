@@ -69,7 +69,7 @@ async function makePlan({ destination, packages }: Options) {
   return computeActions(currentState ?? [], desiredState);
 }
 
-function computeActions(
+async function computeActions(
   currentPkgs: ResolvedPackage[],
   desiredPkgs: ResolvedPackage[],
 ) {
@@ -98,6 +98,20 @@ function computeActions(
       pkg.installationMethod === currentPkg.installationMethod
     ) {
       continue;
+    }
+
+    // If the package is going to be copied we can use the app's
+    // code signature to determine if the current and desired
+    // apps are the same.
+    if (currentPkg?.installationMethod === "copy") {
+      const [installedHash, desiredHash] = await Promise.all([
+        getAppSignature(currentPkg.path),
+        getAppSignature(pkg.path),
+      ]);
+
+      if (installedHash === desiredHash) {
+        continue;
+      }
     }
 
     // If the new generation has a new destination path or installation method
@@ -244,4 +258,28 @@ async function getAppBundles(drvPath: string) {
   }
 
   return appBundles;
+}
+
+async function getAppSignature(path: string): Promise<string | null> {
+  const command = new Deno.Command("/usr/bin/codesign", {
+    args: ["-dv", "--verbose=4", path],
+  });
+  const { code, stderr } = await command.output();
+
+  const decoder = new TextDecoder();
+
+  if (code !== 0) {
+    console.error(`Failed to get a signature for ${path}`);
+    return null;
+  }
+
+  const output = decoder.decode(stderr);
+
+  const hash =
+    output
+      ?.split("\n")
+      ?.find((line) => line.startsWith("CandidateCDHashFull"))
+      ?.replace("CandidateCDHashFull ", "") ?? null;
+
+  return hash;
 }

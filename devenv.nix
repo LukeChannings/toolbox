@@ -30,6 +30,8 @@
 
         imports = [ self.devenvModules.vscode-workspace ];
 
+        devcontainer.enable = true;
+
         languages.shell.enable = true;
 
         packages = with pkgs; [
@@ -41,6 +43,8 @@
           nixVersions.latest
           deno
         ];
+
+        devcontainer.settings.customizations.vscode.extensions = [ "mkhl.direnv" ];
 
         vscode-workspace = {
           extensions = with inputs.vscode-extensions.extensions.${system}.vscode-marketplace; [

@@ -14,11 +14,6 @@ if (import.meta.main) {
         Deno.exit(await linkDryRun(cli.options));
         break;
       }
-      case "version": {
-        console.log("1.0.0");
-        Deno.exit(0);
-        break;
-      }
       case "help":
       default: {
         Deno.exit(help());

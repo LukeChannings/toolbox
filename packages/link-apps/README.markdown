@@ -1,8 +1,10 @@
-import { type StatusCode } from "./types.ts";
+# `link-apps`
 
-import { error } from "./logger.ts";
+A replacement for the default [`buildEnv`](https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/buildenv/builder.pl) that's specialised to installing macOS .app files.
 
-export const USAGE = `
+## Usage
+
+```
 link-apps --destination=<path> [<derivation-path> | a:<derivation-path> | c:<derivation-path> | s:<derivation-path>]
 
 Arguments:
@@ -36,15 +38,4 @@ Flags:
 --help -h              Display this help
 --dry-run -d           Print the install plan but do not actually install
 --verbose              Print debug messages
-`;
-
-export function help(err?: Error): StatusCode {
-  if (err) {
-    error(`Error: ${err.message}\n\n${USAGE}`);
-    return 1;
-  }
-
-  console.log(USAGE);
-
-  return 0;
-}
+```

@@ -1,25 +1,26 @@
 import { assert } from "@std/assert";
 import { parseArgs } from "jsr:@std/cli/parse-args";
 import type { Options, Package } from "./types.ts";
+import { LogLevel, setLogLevel } from "./logger.ts";
 
 export type CLI =
-  | { command: "help" | "version" }
+  | { command: "help" }
   | { command: "link" | "link-dry-run"; options: Options };
 
 export function processCLIArguments(args: string[]): CLI {
   try {
     const flags = parseArgs(args, {
-      boolean: ["help", "verbose", "version", "dry-run"],
-      alias: { help: "h", version: "v", "dry-run": "d" },
+      boolean: ["help", "verbose", "dry-run"],
+      alias: { help: "h", "dry-run": "d" },
       string: ["destination"],
     });
 
-    if (flags["help"]) {
-      return { command: "help" };
+    if (flags["verbose"]) {
+      setLogLevel(LogLevel.Trace);
     }
 
-    if (flags["version"]) {
-      return { command: "version" };
+    if (flags["help"]) {
+      return { command: "help" };
     }
 
     if (flags["destination"] || flags["_"].length) {
@@ -27,7 +28,6 @@ export function processCLIArguments(args: string[]): CLI {
       const paths = flags["_"].filter((p) => typeof p === "string") as string[];
 
       assert(destination != undefined, "A destination path is required");
-      assert(paths.length > 0, "At least 1 derivation path must be passed");
 
       const command = flags["dry-run"] ? "link-dry-run" : "link";
 

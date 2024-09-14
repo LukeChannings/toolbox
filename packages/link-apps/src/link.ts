@@ -4,20 +4,19 @@ import type {
   InstallationMethod,
   ResolvedPackage,
 } from "./types.ts";
+
 import { realPath as getRealAliasPath } from "./macos_alias.ts";
+import { info, error, trace } from "./logger.ts";
 
 export async function link({
   destination,
   packages,
-  verbose,
 }: Options): Promise<StatusCode> {
   await sanitiseDestinationPath(destination, true);
   const actions = await makePlan({ destination, packages });
 
   for await (const [cmd, ...args] of actionsToCommands(actions)) {
-    if (verbose) {
-      console.log([cmd, ...args].join(" "));
-    }
+    info([cmd, ...args].join(" "));
 
     const command = new Deno.Command(cmd, {
       args,
@@ -30,7 +29,7 @@ export async function link({
     child.stdin.close();
 
     if ((await child.status).code > 0) {
-      console.error(`Error running ${[cmd, ...args].join(" ")}`);
+      error(`Error running ${[cmd, ...args].join(" ")}`);
       return 1;
     }
   }
@@ -44,7 +43,7 @@ export async function linkDryRun({
 }: Options): Promise<StatusCode> {
   const actions = await makePlan({ destination, packages });
 
-  console.log(
+  trace(
     actionsToCommands(actions)
       .map((cmd) => cmd.join(" "))
       .join("\n"),
@@ -99,6 +98,12 @@ async function computeActions(
     ) {
       continue;
     }
+
+    trace(
+      `Pkg Real Path: current=${currentPkg?.realPath} desired=${pkg.realPath}`,
+      `Pkg Install Path: current=${currentPkg?.path} desired=${pkg.path}`,
+      `Pkg Install Method: current=${currentPkg?.installationMethod} desired=${pkg.installationMethod}`,
+    );
 
     // If the package is going to be copied we can use the app's
     // code signature to determine if the current and desired
@@ -202,7 +207,7 @@ export async function getExistingDestinationState(destinationPath: string) {
 
       if (entry.isSymlink) {
         installationMethod = "symlink";
-        realPath = await Deno.realPath(path);
+        realPath = (await Deno.realPath(path)).replace(/\.app\/$/, ".app");
       } else if (entry.isFile) {
         installationMethod = "alias";
         realPath = await getRealAliasPath(path);
@@ -219,7 +224,7 @@ export async function getExistingDestinationState(destinationPath: string) {
     }
     return pkgs;
   } catch (err) {
-    console.error(err);
+    error(err);
   }
 }
 
@@ -269,7 +274,7 @@ async function getAppSignature(path: string): Promise<string | null> {
   const decoder = new TextDecoder();
 
   if (code !== 0) {
-    console.error(`Failed to get a signature for ${path}`);
+    error(`Failed to get a signature for ${path}`);
     return null;
   }
 

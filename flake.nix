@@ -36,7 +36,7 @@
       ];
 
       perSystem =
-        { pkgs, ... }:
+        { config, pkgs, ... }:
         {
           packages = rec {
             mkalias = (pkgs.callPackage ./packages/mkalias { });
@@ -44,12 +44,20 @@
           };
         };
 
-      flake.devenvModules = {
-        vscode-workspace = ./modules/devenv/vscode-workspace;
-      };
+      flake = {
 
-      flake.darwinModules = {
-        link-apps = import ./modules/darwin/link-apps { toolbox = self; };
+        # "toolbox" is an existing package...
+        nixpkgs-namespace = "_2lbx";
+
+        devenvModules = {
+          vscode-workspace = ./modules/devenv/vscode-workspace;
+        };
+
+        darwinModules = {
+          link-apps = import ./modules/darwin/link-apps { toolbox = self; };
+        };
+
+        overlays.default = final: prev: { brewCasks = self.packages.${final.system}; };
       };
     };
 }

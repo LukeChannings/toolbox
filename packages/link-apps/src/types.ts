@@ -3,7 +3,6 @@ export type StatusCode = number;
 export interface Options {
   packages: Package[];
   destination: string;
-  verbose?: boolean;
 }
 
 export interface Package {

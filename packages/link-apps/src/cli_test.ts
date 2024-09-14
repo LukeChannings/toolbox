@@ -7,19 +7,8 @@ Deno.test("handles help flag", () => {
   expect(processCLIArguments(["--help"])).toEqual({ command: "help" });
 });
 
-Deno.test("handles version flag", () => {
-  expect(processCLIArguments(["-v"])).toEqual({ command: "version" });
-  expect(processCLIArguments(["--version"])).toEqual({ command: "version" });
-});
-
 Deno.test("Throws for malformed flags", () => {
   expect(() => processCLIArguments(["--verbose"])).toThrow();
-});
-
-Deno.test("Throws when --destination is specified without drv paths", () => {
-  expect(() => processCLIArguments(["--destination", "/Applications"])).toThrow(
-    /At least 1 derivation path must be passed/,
-  );
 });
 
 Deno.test("Throws when drv paths are passed without destination", () => {

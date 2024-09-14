@@ -35,16 +35,14 @@
         languages.shell.enable = true;
 
         packages = with pkgs; [
-          stylua
-          shfmt
+          nixVersions.latest # devenv likes to install an old version of nix
           shellcheck
-          nixfmt-rfc-style
           nil
-          nixVersions.latest
           deno
         ];
 
         devcontainer.settings.customizations.vscode.extensions = [ "mkhl.direnv" ];
+        devcontainer.settings.updateContentCommand = "direnv allow";
 
         vscode-workspace = {
           extensions = with inputs.vscode-extensions.extensions.${system}.vscode-marketplace; [

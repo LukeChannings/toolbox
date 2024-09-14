@@ -56,8 +56,6 @@
         darwinModules = {
           link-apps = import ./modules/darwin/link-apps { toolbox = self; };
         };
-
-        overlays.default = final: prev: { brewCasks = self.packages.${final.system}; };
       };
     };
 }

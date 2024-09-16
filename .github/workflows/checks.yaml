@@ -1,0 +1,16 @@
+name: Checks
+on:
+  pull_request:
+  push:
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: "actions/checkout@v4"
+    - uses: "DeterminateSystems/nix-installer-action@main"
+    - uses: cachix/cachix-action@v14
+      with:
+        name: luke-channings
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - name: Check
+      run: nix flake check --impure

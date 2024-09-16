@@ -1,17 +1,20 @@
 {
-  stdenv,
+  lib,
   swift,
   swiftpm,
   swiftpm2nix,
   swiftPackages,
 }:
 let
-  # Pass the generated files to the helper.
   generated = swiftpm2nix.helpers ./nix;
 in
-stdenv.mkDerivation {
+swift.stdenv.mkDerivation {
   pname = "mkalias";
   version = "1.0.0";
+
+  # Foundation.NSURL on Linux does not support aliases
+  # https://github.com/apple/swift-corelibs-foundation/blob/main/Sources/Foundation/NSURL.swift#L1372
+  meta.platforms = lib.platforms.darwin;
 
   src = ./.;
 

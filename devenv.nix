@@ -19,6 +19,7 @@
           enable = true;
           settings.formatter.indentStyle = "space";
         };
+        programs.yamlfmt.enable = true;
       };
 
       devenv.shells.default = {

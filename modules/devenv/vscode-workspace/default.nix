@@ -84,7 +84,7 @@ in
           fi
 
           # remove the existing symlink and re-link
-          rm "$(pwd)/.vscode/extensions"
+          rm -f "$(pwd)/.vscode/extensions"
           ln -fs "${extensionsEnv}/share/vscode/extensions" "$(pwd)/.vscode/extensions"
         ''
         + (

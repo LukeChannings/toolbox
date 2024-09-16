@@ -49,11 +49,11 @@
         # "toolbox" is an existing package...
         nixpkgs-namespace = "_2lbx";
 
-        devenvModules = {
+        modules.devenv = {
           vscode-workspace = ./modules/devenv/vscode-workspace;
         };
 
-        darwinModules = {
+        modules.darwin = {
           link-apps = import ./modules/darwin/link-apps { toolbox = self; };
         };
       };

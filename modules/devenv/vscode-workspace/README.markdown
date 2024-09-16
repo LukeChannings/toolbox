@@ -6,7 +6,7 @@ Allows configuring VSCode workspace extensions and settings in devenv
 
 ```nix
 { inputs, pkgs, lib, ... }: {
-  imports = [ inputs.toolbox.devenvModules.vscode-workspace ];
+  imports = [ inputs.toolbox.modules.devenv.vscode-workspace ];
 
   vscode-workspace = {
     extensions = with pkgs.vscode-extensions; [

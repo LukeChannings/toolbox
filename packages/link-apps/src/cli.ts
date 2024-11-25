@@ -42,7 +42,7 @@ export function processCLIArguments(args: string[]): CLI {
 
     throw new Error("No command could be determined");
   } catch (err) {
-    throw new Error(`Some flags could not be handled: ${err.message}`, {
+    throw new Error(`Some flags could not be handled: ${err?.message ?? String(err)}`, {
       cause: err,
     });
   }

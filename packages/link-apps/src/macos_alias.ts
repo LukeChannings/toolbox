@@ -27,15 +27,15 @@ export async function realPath(aliasPath: string) {
 }
 
 class AliasFileNotAFile extends Error {
-  name = "AliasFileNotAFile";
+  override name = "AliasFileNotAFile";
 }
 
 class AliasTooBigError extends Error {
-  name = "AliasTooBigError";
+  override name = "AliasTooBigError";
 }
 
 class NotAnAliasFileError extends Error {
-  name = "NotAnAliasFileError";
+  override name = "NotAnAliasFileError";
 }
 
 function isAliasFile(bytes: Uint8Array) {

@@ -21,6 +21,6 @@ if (import.meta.main) {
       }
     }
   } catch (err) {
-    Deno.exit(help(err));
+    Deno.exit(help(err as unknown as Error | undefined));
   }
 }
